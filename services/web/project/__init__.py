@@ -1,6 +1,7 @@
 from io import BytesIO
+import os
 
-from flask import Flask, send_file, request
+from flask import Flask, jsonify, send_file, request
 
 from selenium import webdriver
 
@@ -16,6 +17,10 @@ def execute_script(driver: webdriver, x):
 def default():
     query_params = request.args.to_dict()
     url = query_params.get("url")
+    key = query_params.get("key")
+
+    if key != os.getenv("KEY"):
+        return jsonify(success="true")
 
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
