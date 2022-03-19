@@ -37,17 +37,19 @@ FROM python:3.9.5-slim-buster
 # create directory for the app user
 RUN mkdir -p /home/app
 
-# create the app user
-RUN addgroup --system app && adduser --system --group app
-
 # create the appropriate directories
 ENV HOME=/home/app
 ENV APP_HOME=/home/app/web
 RUN mkdir $APP_HOME
+RUN mkdir /home/app/pageres_media
 WORKDIR $APP_HOME
 
 # install dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends netcat
+RUN apt-get update && apt-get install -y --no-install-recommends netcat wget gnupg
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+RUN echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
+RUN apt-get update && apt-get install -y google-chrome-stable
+
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
 RUN pip install --upgrade pip
@@ -55,6 +57,9 @@ RUN pip install --no-cache /wheels/*
 
 # copy project
 COPY . $APP_HOME
+
+# create the app user
+RUN addgroup --system app && adduser --system --group app
 
 # chown all the files to the app user
 RUN chown -R app:app $APP_HOME
