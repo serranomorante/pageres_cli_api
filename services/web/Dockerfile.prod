@@ -41,7 +41,6 @@ RUN mkdir -p /home/app
 ENV HOME=/home/app
 ENV APP_HOME=/home/app/web
 RUN mkdir $APP_HOME
-RUN mkdir /home/app/pageres_media
 WORKDIR $APP_HOME
 
 # install dependencies
